@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <script src="lib/socket.io/client-dist/socket.io.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            font-family: monospace;
+        }
+
+        .terminal {
+            width: 100vw;
+            height: 100vh;
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+        }
+
+        .terminal__output, .terminal__input {
+            background-color: black;
+            color: white;
+        }
+
+        .terminal__title {
+            padding: 0.25rem;
+            background-color: #bbb;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .terminal__output {
+            overflow-y: scroll;
+        }
+
+        .terminal__output pre {
+            white-space: break-spaces;
+            padding: 0.25rem;
+            margin: 0;
+            overflow: auto;
+        }
+
+        .terminal__input {
+            border-top: 1px solid #bbb;
+            display: flex;
+            padding-bottom: 0.5rem;
+        }
+
+        .terminal__input input {
+            width: 100%;
+            background: black;
+            border: none;
+            color: white;
+        }
+
+        .terminal__input > span {
+            padding: 0.25rem;
+        }
+
+        .terminal__input input:focus-visible {
+            padding: 0;
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="terminal">
+        <div class="terminal__title">#test_console</div>
+        <div class="terminal__output"><pre></pre></div>
+        <div class="terminal__input">
+            <span>$</span><input type="text">
+        </div>
+    </div>
+    <div></div>
+    <script>
+        var io = io();
+        const outBlock = document.querySelector('.terminal__output');
+        const output = document.querySelector('.terminal__output pre');
+        const input = document.querySelector('.terminal__input input');
+
+        io.on('terminal_output', (data) => {
+            output.innerHTML += data;
+            outBlock.scrollTop = outBlock.scrollHeight;
+        });
+
+        input.addEventListener('keypress', (e) => {
+            if (event.key === "Enter") {
+                const value = e.target.value + '\r';
+                e.target.value = '';
+                io.emit('terminal_write', value);
+            }
+        })
+    </script>
+</body>
+</html>
